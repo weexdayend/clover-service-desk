@@ -1,0 +1,527 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model akses {
+  id_akses Int           @id @default(autoincrement())
+  nama     String?       @db.VarChar(50)
+  menu     String?       @db.Text
+  aplikasi String?       @default("POROS") @db.Char(50)
+  status   akses_status?
+}
+
+model api_log {
+  id_api_log  Int       @id @default(autoincrement())
+  tgl_request DateTime? @db.DateTime(0)
+  id_api_user Int?
+  ip          String?   @db.VarChar(50)
+  os          String?   @db.VarChar(100)
+  browser     String?   @db.VarChar(100)
+  keterangan  String?   @db.VarChar(100)
+}
+
+model api_token {
+  id_api_token Int       @id @default(autoincrement())
+  id_api_user  Int?
+  tgl_create   DateTime? @db.DateTime(0)
+  token_api    String?   @db.VarChar(100)
+  tgl_expired  DateTime? @db.DateTime(0)
+  ket          String?   @db.VarChar(100)
+}
+
+model api_user {
+  id_api_user Int              @id @default(autoincrement())
+  user_id     String?          @db.VarChar(50)
+  pass_id     String?          @db.VarChar(50)
+  root_file   String?          @db.VarChar(50)
+  status      api_user_status?
+}
+
+model aplikasi {
+  id_aplikasi Int               @id @default(autoincrement())
+  nama        String?           @db.VarChar(50)
+  base_url    String?           @db.VarChar(100)
+  monitor     aplikasi_monitor?
+  http_code   String?           @db.Char(50)
+  respontime  String?           @db.Char(50)
+  keterangan  String?           @db.VarChar(100)
+  last_check  DateTime?         @db.DateTime(0)
+
+  @@index([keterangan], map: "keterangan")
+  @@index([nama], map: "nama")
+}
+
+model area {
+  id_area  Int          @id @default(autoincrement())
+  regional String?      @db.VarChar(50)
+  witel    String?      @db.VarChar(50)
+  status   area_status?
+}
+
+model catatan {
+  id_catatan Int       @id @default(autoincrement())
+  tanggal    DateTime? @db.Date
+  jam        DateTime? @db.Time(0)
+  kegiatan   String?   @db.VarChar(200)
+  catatan    String?   @db.Text
+  user       String?   @db.Char(15)
+
+  @@index([kegiatan], map: "kegiatan")
+  @@index([tanggal], map: "tanggal")
+  @@index([user], map: "user")
+}
+
+model diarium {
+  id_diarium   Int       @id @default(autoincrement())
+  id_user      Int?
+  tanggal      DateTime? @db.Date
+  lat          String?   @db.VarChar(100)
+  lng          String?   @db.VarChar(100)
+  kondisi      String?   @db.VarChar(100)
+  lokasi       String?   @db.VarChar(100)
+  transportasi String?   @db.VarChar(100)
+  keterangan   String?   @db.Text
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model hitung_piket {
+  bulan   String?   @db.VarChar(50)
+  nama    String?   @db.VarChar(50)
+  tanggal DateTime? @db.Date
+  shif    String?   @db.VarChar(50)
+  ket     String?   @db.VarChar(50)
+  status  Int?
+
+  @@ignore
+}
+
+model ibooster {
+  id_ibooster   Int       @id @default(autoincrement())
+  nd            String    @db.Char(30)
+  hostname      String?   @db.VarChar(50)
+  identifier    String?   @db.VarChar(50)
+  shelf         String?   @db.VarChar(50)
+  slot          String?   @db.VarChar(50)
+  port          String?   @db.VarChar(50)
+  onu           String?   @db.VarChar(50)
+  oper_status   String?   @db.VarChar(50)
+  admin_status  String?   @db.VarChar(50)
+  bw_up         String?   @db.VarChar(50)
+  bw_down       String?   @db.VarChar(50)
+  onu_rx_pwr    String?   @db.VarChar(50)
+  onu_tx_pwr    String?   @db.VarChar(50)
+  olt_tx_pwr    String?   @db.VarChar(50)
+  olt_rx_pwr    String?   @db.VarChar(50)
+  serial_number String?   @db.VarChar(50)
+  mac           String?   @db.VarChar(50)
+  status_cpe    String?   @db.VarChar(50)
+  session_start DateTime? @db.DateTime(0)
+  tgl_ukur      DateTime? @db.DateTime(0)
+  token         String    @db.Char(100)
+}
+
+model log_aplikasi {
+  id_log_aplikasi Int       @id @default(autoincrement())
+  datetime        DateTime? @db.DateTime(0)
+  id_aplikasi     Int       @default(0)
+  respontime      String?   @db.Char(50)
+  httpcode        String?   @db.Char(50)
+  keterangan      String?   @db.VarChar(50)
+
+  @@index([datetime], map: "datetime")
+  @@index([httpcode], map: "httpcode")
+  @@index([id_aplikasi], map: "id_aplikasi")
+  @@index([keterangan], map: "keterangan")
+  @@index([respontime], map: "respontime")
+}
+
+model logbook {
+  id_logbook  Int             @id @default(autoincrement())
+  mulai       DateTime?       @db.DateTime(0)
+  selesai     DateTime?       @db.DateTime(0)
+  id_aplikasi Int?
+  sumber_info String?         @db.VarChar(100)
+  dampak      String?         @db.VarChar(200)
+  keterangan  String?         @db.Text
+  attachment  String?         @db.VarChar(100)
+  status      logbook_status?
+  created     Int?
+  resolved    Int?
+
+  @@index([id_aplikasi], map: "id_aplikasi")
+  @@index([mulai], map: "mulai")
+  @@index([selesai], map: "selesai")
+  @@index([status], map: "status")
+}
+
+model network {
+  id_network  Int              @default(autoincrement())
+  witel       String           @db.VarChar(50)
+  nama        String           @db.VarChar(200)
+  ip          String           @unique(map: "ip") @db.Char(30)
+  ping_status String           @db.VarChar(100)
+  monitor     network_monitor? @default(Y)
+  last_update DateTime         @db.DateTime(0)
+
+  @@id([id_network, ping_status, ip, witel, nama, last_update])
+  @@index([last_update], map: "last_update")
+  @@index([nama], map: "nama")
+  @@index([ping_status], map: "ping_status")
+  @@index([witel], map: "witel")
+}
+
+model network_log {
+  id_network_log Int      @default(autoincrement())
+  ip             String   @db.Char(30)
+  ping_status    String   @db.VarChar(100)
+  last_update    DateTime @db.DateTime(0)
+
+  @@id([id_network_log, ip, ping_status, last_update])
+  @@index([ip], map: "ip")
+  @@index([last_update], map: "last_update")
+  @@index([ping_status], map: "ping_status")
+}
+
+model no_rek {
+  id_no_rek Int     @id @default(autoincrement())
+  nama      String? @unique(map: "id_user") @db.VarChar(100)
+  bank      String? @db.VarChar(50)
+  rekening  String? @db.Char(50)
+}
+
+model notif_poros {
+  id_notif_poros Int                @id @default(autoincrement())
+  tanggal        DateTime?          @db.DateTime(0)
+  jenis          notif_poros_jenis?
+  id_user        Int?
+  informasi      String?            @db.Char(100)
+
+  @@index([jenis], map: "jenis")
+  @@index([tanggal], map: "tanggal")
+}
+
+model order_other {
+  id_order_other Int                 @id @default(autoincrement())
+  tgl_create     DateTime?           @db.DateTime(0)
+  tgl_closed     DateTime?           @db.DateTime(0)
+  scid           Int?
+  scid_status    String?             @db.VarChar(200)
+  som            Int?
+  som_status     String?             @db.VarChar(100)
+  jenis          String?             @db.VarChar(100)
+  noted          String?             @db.Text
+  solusi         String?             @db.Text
+  guest          Int?
+  solver         Int?
+  status         order_other_status?
+
+  @@index([guest], map: "guest")
+  @@index([scid], map: "scid")
+  @@index([solver], map: "solver")
+  @@index([status], map: "status")
+  @@index([tgl_closed], map: "tgl_closed")
+  @@index([tgl_create], map: "tgl_create")
+}
+
+model order_telegram {
+  id_order_telegram Int                    @id @default(autoincrement())
+  tgl_create        DateTime?              @db.DateTime(0)
+  tgl_closed        DateTime?              @db.DateTime(0)
+  id_telegram       String?                @db.Char(50)
+  nama_user         String?                @db.VarChar(100)
+  noted             String?                @db.Text
+  solusi            String?                @db.Text
+  solver            Int?
+  status            order_telegram_status?
+}
+
+model order_tiket {
+  id_order_tiket Int                 @id @default(autoincrement())
+  tgl_create     DateTime?           @db.DateTime(0)
+  tgl_closed     DateTime?           @db.DateTime(0)
+  no_tiket       String?             @db.Text
+  guest          Int?
+  solver         Int?
+  status         order_tiket_status?
+
+  @@index([guest], map: "guest")
+  @@index([solver], map: "solver")
+  @@index([status], map: "status")
+  @@index([tgl_closed], map: "tgl_closed")
+  @@index([tgl_create], map: "tgl_create")
+}
+
+model order_wfm {
+  id_order_wfm Int               @id @default(autoincrement())
+  tgl_create   DateTime?         @db.DateTime(0)
+  tgl_closed   DateTime?         @db.DateTime(0)
+  scid         Int?
+  som          Int?
+  som_status   String?           @db.VarChar(100)
+  tom          Int?
+  tom_status   String?           @db.VarChar(100)
+  wfm          String?           @db.VarChar(20)
+  wfm_status   String?           @db.VarChar(50)
+  noted        String?           @db.Text
+  solusi       String?           @db.Text
+  guest        Int?
+  solver       Int?
+  status       order_wfm_status?
+
+  @@index([guest], map: "guest")
+  @@index([solver], map: "solver")
+  @@index([status], map: "status")
+  @@index([tgl_closed], map: "tgl_closed")
+  @@index([tgl_create], map: "tgl_create")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model pengaturan {
+  web_title      String?                    @db.VarChar(50)
+  web_footer     String?                    @db.VarChar(100)
+  web_header     String?                    @db.VarChar(50)
+  web_url        String?                    @db.VarChar(50)
+  web_logo       String?                    @db.VarChar(50)
+  maintenance    pengaturan_maintenance?
+  notif_order    pengaturan_notif_order?
+  notif_gangguan pengaturan_notif_gangguan?
+  tutup_warung   pengaturan_tutup_warung?
+  tutup_info     String?                    @db.VarChar(200)
+
+  @@ignore
+}
+
+model piket_poros {
+  id_piket      Int                     @id @default(autoincrement())
+  id_user       Int?
+  tanggal       DateTime?               @db.Date
+  id_piket_shif Int?
+  keterangan    piket_poros_keterangan?
+  status        piket_poros_status?
+  user          user?                   @relation(fields: [id_user], references: [id_user], onDelete: NoAction, onUpdate: NoAction, map: "FK_piket_poros_user")
+
+  @@index([id_user], map: "FK_piket_poros_user")
+}
+
+model piket_shif {
+  id_piket_shif Int                @id @default(autoincrement())
+  nama          String?            @db.VarChar(100)
+  masuk         DateTime?          @db.Time(0)
+  pulang        DateTime?          @db.Time(0)
+  status        piket_shif_status?
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model presensi {
+  id_presensi Int    @id @default(autoincrement())
+  tanggal     String @db.VarChar(50)
+  id_shift    Int
+  id_user     String @db.VarChar(50)
+  pre_masuk   String @db.VarChar(50)
+  pre_pulang  String @db.VarChar(50)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tools_ncx {
+  no_sc  String? @db.VarChar(11)
+  status String? @db.Text
+  ket    Int?
+
+  @@ignore
+}
+
+model tracking {
+  id_tracking   Int     @id @default(autoincrement())
+  no_sc         Int
+  witel         String? @db.Char(50)
+  nama          String? @db.VarChar(100)
+  alamat        String? @db.Text
+  alpro         String? @db.Text
+  telp          String? @db.Text
+  internet      String? @db.Text
+  status        String? @db.VarChar(200)
+  status_detail String? @db.Text
+  ket           Int?
+}
+
+model user {
+  id_user     Int           @id @default(autoincrement())
+  id_akses    Int?
+  id_area     Int?
+  nama        String?       @db.VarChar(50)
+  username    String?       @unique(map: "username") @db.VarChar(50)
+  password    String?       @db.VarChar(50)
+  type        user_type?    @default(LOCAL)
+  telegram    String?       @db.Char(15)
+  status      user_status?
+  last_login  DateTime?     @db.DateTime(0)
+  ip_address  String?       @db.VarChar(50)
+  piket_poros piket_poros[]
+
+  @@index([id_akses], map: "id_akses")
+  @@index([id_area], map: "id_area")
+  @@index([ip_address], map: "ip_address")
+  @@index([last_login], map: "last_login")
+  @@index([status], map: "status")
+  @@index([type], map: "type")
+}
+
+model tbl_list_peminjaman {
+  id                 Int    @id @default(autoincrement())
+  sn_perangkat       String @db.VarChar(100)
+  catatan_peminjaman String @db.VarChar(100)
+  tiket              String @db.VarChar(100)
+}
+
+model tbl_peminjaman {
+  tiket                 String    @id @db.VarChar(100)
+  created_at            DateTime? @db.DateTime(0)
+  updated_at            DateTime? @db.DateTime(0)
+  tanggal_peminjaman    String?   @db.VarChar(100)
+  tanggal_pengembalian  String?   @db.VarChar(100)
+  nik_peminjam          String?   @db.VarChar(100)
+  nama_peminjam         String?   @db.VarChar(100)
+  kontak_peminjam       String?   @db.VarChar(100)
+  foto_penyerahan       String?   @db.VarChar(100)
+  foto_pengembalian     String?   @db.VarChar(100)
+  status_peminjaman     String?   @db.VarChar(100)
+  keterangan_peminjaman String?   @db.Text
+  kategori_peminjaman   String?   @db.VarChar(100)
+}
+
+model inventory_perangkat {
+  id_perangkat       Int     @id @default(autoincrement())
+  sn_perangkat       String  @unique(map: "inventory_perangkat_unique") @db.VarChar(100)
+  csm_perangkat      String  @db.VarChar(100)
+  kategori_perangkat String? @db.VarChar(100)
+  type_perangkat     String? @db.VarChar(100)
+  merek_perangkat    String? @db.VarChar(100)
+  use_perangkat      String? @db.VarChar(100)
+  status_perangkat   String? @db.VarChar(100)
+}
+
+model perangkat_user {
+  id_perangkat       Int     @id @default(autoincrement())
+  serial_perangkat   String? @db.VarChar(100)
+  csm_perangkat      String? @db.VarChar(100)
+  kategori_perangkat String? @db.VarChar(100)
+  type_perangkat     String? @db.VarChar(100)
+  merek_perangkat    String? @db.VarChar(100)
+  status_perangkat   String? @db.VarChar(100)
+  tiket              String? @db.VarChar(100)
+}
+
+enum notif_poros_jenis {
+  Order
+  Gangguan
+  Info
+}
+
+enum aplikasi_monitor {
+  Y
+  N
+}
+
+enum area_status {
+  Active
+  Disable
+}
+
+enum akses_status {
+  Active
+  Disable
+}
+
+enum api_user_status {
+  Y
+  N
+}
+
+enum piket_poros_keterangan {
+  Hari_Kerja @map("Hari Kerja")
+  Hari_Libur @map("Hari Libur")
+}
+
+enum piket_shif_status {
+  Y
+  N
+}
+
+enum network_monitor {
+  Y
+  N
+}
+
+enum pengaturan_maintenance {
+  Y
+  N
+}
+
+enum piket_poros_status {
+  Y
+  N
+}
+
+enum order_tiket_status {
+  Inprogress
+  Closed
+  Eskalasi
+  New
+}
+
+enum pengaturan_notif_order {
+  Y
+  N
+}
+
+enum user_type {
+  LDAP
+  LOCAL
+}
+
+enum pengaturan_notif_gangguan {
+  Y
+  N
+}
+
+enum logbook_status {
+  Normal
+  Gangguan
+  Draf
+}
+
+enum order_telegram_status {
+  Inprogress
+  Closed
+  Eskalasi
+  New
+}
+
+enum pengaturan_tutup_warung {
+  Y
+  N
+}
+
+enum user_status {
+  Active
+  Disable
+}
+
+enum order_other_status {
+  Inprogress
+  Closed
+  Eskalasi
+  New
+}
+
+enum order_wfm_status {
+  Inprogress
+  Closed
+  Eskalasi
+  New
+}
