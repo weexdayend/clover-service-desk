@@ -25,18 +25,23 @@ RUN npm run build
 # Use a lightweight Node.js image for production
 FROM node:18-alpine
 
+# Set the working directory inside the container
 WORKDIR /app
 
+# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
-RUN npm install
-
-RUN npm install -g prisma
-
-COPY . .
+# Install production dependencies
+RUN npm install --only=production
 
 RUN npx prisma generate
 
-EXPOSE 7345
+# Copy built files from the builder stage
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/prisma ./prisma
 
-CMD ["npm", "run", "start"]
+# Expose port 7654 to the outside world
+EXPOSE 7654
+
+# Start the Next.js app in production mode
+CMD ["npm", "start"]
