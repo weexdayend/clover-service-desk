@@ -44,4 +44,4 @@ COPY --from=builder /app/prisma ./prisma
 EXPOSE 7654
 
 # Start the Next.js app in production mode
-CMD ["npm", "start", "-P", "7654"]
+CMD ["npm", "start", "-p", "7654"]
