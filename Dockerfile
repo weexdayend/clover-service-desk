@@ -18,12 +18,9 @@ COPY . .
 
 # Generate Prisma client
 RUN prisma generate
-RUN npx prisma generate
 
 # Build the Next.js app
 RUN npm run build
-
-# -----
 
 # Use a lightweight Node.js image for production
 FROM node:18-alpine
@@ -41,7 +38,7 @@ RUN npm install --only=production
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/prisma ./prisma
 
-# Expose port 3000 to the outside world (assuming your app listens on port 3000)
+# Expose port 7654 to the outside world
 EXPOSE 7654
 
 # Start the Next.js app in production mode
