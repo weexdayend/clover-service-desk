@@ -1,45 +1,60 @@
-# Use the official Node.js image as base
-FROM node:18 AS builder
+# Use node lts-buster-slim as base image
+FROM node:lts-buster-slim AS base
 
-# Set the working directory inside the container
+# Install necessary dependencies
+RUN apt-get update && apt-get install -y libssl-dev ca-certificates
+
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+# Copy package.json and yarn.lock from local directory to WORKDIR
+COPY package.json package-lock.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies for the base stage
+RUN npm install --production
 
-# Install Prisma globally
-RUN npm install -g prisma
+# Use base stage as build stage
+FROM base as build
 
-# Copy the rest of the application code
+# Copy all local files to WORKDIR
 COPY . .
 
 # Generate Prisma client
-RUN prisma generate
+RUN npx prisma generate
 
-# Build the Next.js app
+# Build the application
 RUN npm run build
 
-# Use a lightweight Node.js image for production
-FROM node:18-alpine
+# Use base stage as production build stage
+FROM base as prod-build
 
-# Set the working directory inside the container
-WORKDIR /app
+# Install production dependencies for production build stage
+RUN npm install --production
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+# Copy Prisma directory to WORKDIR
+COPY prisma prisma
 
-# Install production dependencies
-RUN npm install --only=production
+# Generate Prisma client for production build stage
+RUN npx prisma generate
 
-# Copy built files from the builder stage
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/prisma ./prisma
+# Create a directory to store production node modules
+RUN cp -R node_modules prod_node_modules
 
-# Expose port 7654 to the outside world
+# Use base stage as prod stage
+FROM base as prod
+
+# Copy production node modules from prod-build stage to prod stage
+COPY --from=prod-build /app/prod_node_modules /app/node_modules
+
+# Copy .next directory and public directory from build stage to prod stage
+COPY --from=build /app/.next /app/.next
+COPY --from=build /app/public /app/public
+
+# Copy Prisma directory from build stage to prod stage
+COPY --from=build /app/prisma /app/prisma
+
+# Expose port 80
 EXPOSE 7654
 
-# Start the Next.js app in production mode
+# Start the application
 CMD ["npm", "start"]
